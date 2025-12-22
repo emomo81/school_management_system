@@ -35,7 +35,7 @@ class Student
             $stmt->execute([
                 'name' => $data['first_name'] . ' ' . $data['last_name'],
                 'email' => $data['email'],
-                'password' => password_hash($data['dob'], PASSWORD_BCRYPT) // Default password is DOB
+                'password' => password_hash($data['password'], PASSWORD_BCRYPT)
             ]);
             $userId = $this->db->lastInsertId();
 

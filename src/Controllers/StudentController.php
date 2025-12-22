@@ -44,6 +44,7 @@ class StudentController extends Controller
             'first_name' => $_POST['first_name'],
             'last_name' => $_POST['last_name'],
             'email' => $_POST['email'],
+            'password' => $_POST['password'],
             'admission_no' => $_POST['admission_no'],
             'dob' => $_POST['dob'],
             'gender' => $_POST['gender'],

@@ -30,6 +30,11 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" required
+                        placeholder="Enter login password">
+                </div>
+                <div class="col-md-6 mb-3">
                     <label>Date of Birth</label>
                     <input type="date" name="dob" class="form-control" required>
                 </div>
