@@ -1,0 +1,13 @@
+{
+    "name": "school/system",
+    "description": "A comprehensive School Management System",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.0",
+        "vlucas/phpdotenv": "^5.5"
+    }
+}

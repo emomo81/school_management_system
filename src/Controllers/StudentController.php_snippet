@@ -1,0 +1,48 @@
+    public function reportCard() {
+        if (!isset($_SESSION['user'])) { $this->redirect('/login'); }
+        
+        $studentId = $_GET['id'] ?? null;
+        if (!$studentId && $_SESSION['user']['role'] === 'student') {
+             // If logged in student, find their student ID
+             $userModel = new \App\Models\User(); // You might need a method to get student_id from user_id
+             // Quick hack for demo: fetch from session if we stored it, or query db
+             $db = \App\Core\Database::getInstance()->getConnection();
+             $stmt = $db->prepare("SELECT id FROM students WHERE user_id = ?");
+             $stmt->execute([$_SESSION['user']['id']]);
+             $student = $stmt->fetch();
+             $studentId = $student['id'] ?? null;
+        }
+
+        if (!$studentId) {
+            $this->redirect('/students');
+        }
+
+        // Fetch Student Info
+        $studentModel = new Student();
+        // reusing getAll logic or fetch specific
+        $db = \App\Core\Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT s.*, u.name, c.name as class_name, c.section FROM students s JOIN users u ON s.user_id = u.id LEFT JOIN classes c ON s.class_id = c.id WHERE s.id = ?");
+        $stmt->execute([$studentId]);
+        $student = $stmt->fetch();
+
+        // Fetch Marks grouped by Exam
+        $stmt2 = $db->prepare("
+            SELECT m.*, s.name as subject_name, s.code as subject_code, e.name as exam_name 
+            FROM marks m 
+            JOIN subjects s ON m.subject_id = s.id 
+            JOIN exams e ON m.exam_id = e.id 
+            WHERE m.student_id = ?
+            ORDER BY e.date DESC, s.name ASC
+        ");
+        $stmt2->execute([$studentId]);
+        $marks = $stmt2->fetchAll();
+
+        // Group by Exam
+        $report = [];
+        foreach ($marks as $mark) {
+            $report[$mark['exam_name']][] = $mark;
+        }
+
+        $view = $this->render('students/report_card', ['student' => $student, 'report' => $report]);
+        echo $this->render('layouts/main', ['content' => $view, 'title' => 'Report Card']);
+    }
