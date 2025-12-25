@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $name = $_SESSION['user']['name'];
         $stats = [];
 
-        if ($role === 'admin') {
+        if ($role === 'admin' || $role === 'teacher') {
             $studentModel = new Student();
             $teacherModel = new Teacher();
             $classModel = new SchoolClass();

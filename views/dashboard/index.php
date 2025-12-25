@@ -80,14 +80,16 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
-                        <a href="<?= $base_url ?>/students/create"
-                            class="list-group-item list-group-item-action border-0 d-flex align-items-center gap-3 py-3">
-                            <div class="bg-primary bg-opacity-10 text-primary rounded p-2"><i class="fas fa-plus"></i></div>
-                            <div>
-                                <div class="font-semibold text-sm">Add Student</div>
-                                <div class="text-xs text-muted">Register a new student profile</div>
-                            </div>
-                        </a>
+                        <?php if ($role === 'admin'): ?>
+                            <a href="<?= $base_url ?>/students/create"
+                                class="list-group-item list-group-item-action border-0 d-flex align-items-center gap-3 py-3">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded p-2"><i class="fas fa-plus"></i></div>
+                                <div>
+                                    <div class="font-semibold text-sm">Add Student</div>
+                                    <div class="text-xs text-muted">Register a new student profile</div>
+                                </div>
+                            </a>
+                        <?php endif; ?>
                         <a href="<?= $base_url ?>/exams/create"
                             class="list-group-item list-group-item-action border-0 d-flex align-items-center gap-3 py-3">
                             <div class="bg-success bg-opacity-10 text-success rounded p-2"><i
@@ -264,7 +266,8 @@
                                                     class="text-xs text-muted"><?= date('M d, Y', strtotime($notice['created_at'])) ?></span>
                                             </div>
                                             <p class="text-sm text-muted mb-0">
-                                                <?= substr(strip_tags($notice['content']), 0, 120) ?>...</p>
+                                                <?= substr(strip_tags($notice['content']), 0, 120) ?>...
+                                            </p>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
