@@ -53,18 +53,35 @@
                 <textarea name="address" class="form-control" rows="2"></textarea>
             </div>
 
-            <div class="mb-3">
-                <label>Class (Optional)</label>
-                <select name="class_id" class="form-select">
-                    <option value="">-- Select Class --</option>
-                    <?php if (!empty($classes)): ?>
-                        <?php foreach ($classes as $class): ?>
-                            <option value="<?= $class['id'] ?>">
-                                <?= htmlspecialchars($class['name'] . ' - ' . $class['section']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Program (Class)</label>
+                    <select name="class_id" class="form-select">
+                        <option value="">-- Select Program --</option>
+                        <?php if (!empty($classes)): ?>
+                            <?php foreach ($classes as $class): ?>
+                                <option value="<?= $class['id'] ?>">
+                                    <?= htmlspecialchars($class['name']) ?>
+                                    <?= !empty($class['department_name']) ? ' (' . htmlspecialchars($class['department_name']) . ')' : '' ?>
+                                    <?= !empty($class['section']) ? ' - ' . htmlspecialchars($class['section']) : '' ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Academic Year</label>
+                    <select name="academic_year_id" class="form-select" required>
+                        <option value="">-- Select Academic Year --</option>
+                        <?php if (!empty($years)): ?>
+                            <?php foreach ($years as $year): ?>
+                                <option value="<?= $year['id'] ?>" <?= ($year['is_active']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($year['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-success">Create Student</button>

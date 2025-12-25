@@ -11,6 +11,9 @@
             <thead>
                 <tr>
                     <th>Exam Name</th>
+                    <th>Department</th>
+                    <th>Program</th>
+                    <th>Term / Year</th>
                     <th>Date</th>
                     <th>Actions</th>
                 </tr>
@@ -18,12 +21,18 @@
             <tbody>
                 <?php if (empty($exams)): ?>
                     <tr>
-                        <td colspan="3" class="text-center">No exams found.</td>
+                        <td colspan="6" class="text-center">No exams found.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($exams as $exam): ?>
                         <tr>
                             <td><?= htmlspecialchars($exam['name']) ?></td>
+                            <td><?= htmlspecialchars($exam['department_name'] ?? 'Global') ?></td>
+                            <td>
+                                <?= htmlspecialchars($exam['program_name'] ?? 'Global') ?>
+                                <?= !empty($exam['section']) ? ' (' . htmlspecialchars($exam['section']) . ')' : '' ?>
+                            </td>
+                            <td><?= htmlspecialchars($exam['term'] ?? 'N/A') ?></td>
                             <td><?= htmlspecialchars($exam['date']) ?></td>
                             <td>
                                 <?php if ($_SESSION['user']['role'] === 'admin'): ?>

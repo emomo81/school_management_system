@@ -14,16 +14,24 @@ class Student
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function getAll()
+    public function getAll($classIds = [])
     {
-        $stmt = $this->db->query("
+        $sql = "
             SELECT s.*, u.name, u.email, c.name as class_name 
             FROM students s
             JOIN users u ON s.user_id = u.id
             LEFT JOIN classes c ON s.class_id = c.id
             WHERE s.deleted_at IS NULL
-            ORDER BY s.admission_no DESC
-        ");
+        ";
+
+        if (!empty($classIds)) {
+            $ids = implode(',', array_map('intval', $classIds));
+            $sql .= " AND s.class_id IN ($ids)";
+        }
+
+        $sql .= " ORDER BY s.admission_no DESC";
+
+        $stmt = $this->db->query($sql);
         return $stmt->fetchAll();
     }
 
@@ -42,8 +50,8 @@ class Student
 
             // 2. Create Student Profile
             $stmt = $this->db->prepare("
-                INSERT INTO students (user_id, admission_no, dob, gender, address, class_id) 
-                VALUES (:user_id, :admission_no, :dob, :gender, :address, :class_id)
+                INSERT INTO students (user_id, admission_no, dob, gender, address, class_id, academic_year_id) 
+                VALUES (:user_id, :admission_no, :dob, :gender, :address, :class_id, :academic_year_id)
             ");
             $stmt->execute([
                 'user_id' => $userId,
@@ -51,7 +59,8 @@ class Student
                 'dob' => $data['dob'],
                 'gender' => $data['gender'],
                 'address' => $data['address'],
-                'class_id' => $data['class_id'] ?: null
+                'class_id' => $data['class_id'] ?: null,
+                'academic_year_id' => $data['academic_year_id'] ?? null
             ]);
 
             $this->db->commit();
@@ -100,7 +109,8 @@ class Student
                     dob = :dob, 
                     gender = :gender, 
                     address = :address, 
-                    class_id = :class_id 
+                    class_id = :class_id,
+                    academic_year_id = :academic_year_id
                 WHERE id = :id
             ");
             $stmt->execute([
@@ -109,6 +119,7 @@ class Student
                 'gender' => $data['gender'],
                 'address' => $data['address'],
                 'class_id' => $data['class_id'] ?: null,
+                'academic_year_id' => $data['academic_year_id'] ?? null,
                 'id' => $data['id']
             ]);
 

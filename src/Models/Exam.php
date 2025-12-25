@@ -22,16 +22,25 @@ class Exam
 
     public function getAll()
     {
-        $stmt = $this->db->query("SELECT * FROM exams WHERE deleted_at IS NULL ORDER BY date DESC");
+        $stmt = $this->db->query("
+            SELECT e.*, d.name as department_name, c.name as program_name, c.section 
+            FROM exams e
+            LEFT JOIN departments d ON e.department_id = d.id
+            LEFT JOIN classes c ON e.program_id = c.id
+            ORDER BY e.date DESC
+        ");
         return $stmt->fetchAll();
     }
 
     public function create($data)
     {
-        $stmt = $this->db->prepare("INSERT INTO exams (name, date) VALUES (:name, :date)");
+        $stmt = $this->db->prepare("INSERT INTO exams (name, date, department_id, program_id, term) VALUES (:name, :date, :department_id, :program_id, :term)");
         return $stmt->execute([
             'name' => $data['name'],
-            'date' => $data['date']
+            'date' => $data['date'],
+            'department_id' => $data['department_id'] ?? null,
+            'program_id' => $data['program_id'] ?? null,
+            'term' => $data['term'] ?? null
         ]);
     }
 

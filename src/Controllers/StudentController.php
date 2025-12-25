@@ -14,8 +14,35 @@ class StudentController extends Controller
             $this->redirect('/login');
         }
 
-        $model = new Student();
-        $students = $model->getAll();
+        $studentModel = new Student();
+
+        // Check if user is teacher
+        if ($_SESSION['user']['role'] === 'teacher') {
+            $db = \App\Core\Database::getInstance()->getConnection();
+
+            // Get Teacher ID
+            $stmt = $db->prepare("SELECT id FROM teachers WHERE user_id = ?");
+            $stmt->execute([$_SESSION['user']['id']]);
+            $teacher = $stmt->fetch();
+
+            if ($teacher) {
+                // Get Assigned Classes
+                $stmt = $db->prepare("SELECT DISTINCT class_id FROM subject_assignments WHERE teacher_id = ?");
+                $stmt->execute([$teacher['id']]);
+                $classIds = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+                if (empty($classIds)) {
+                    $students = []; // No students if no classes assigned
+                } else {
+                    $students = $studentModel->getAll($classIds);
+                }
+            } else {
+                $students = [];
+            }
+        } else {
+            // Admin sees all
+            $students = $studentModel->getAll();
+        }
 
         $view = $this->render('students/index', ['students' => $students]);
         echo $this->render('layouts/main', ['content' => $view, 'title' => 'Students']);
@@ -23,20 +50,23 @@ class StudentController extends Controller
 
     public function create()
     {
-        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher')) {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             $this->redirect('/dashboard');
         }
 
         $classModel = new \App\Models\SchoolClass();
         $classes = $classModel->getAll();
 
-        $view = $this->render('students/create', ['classes' => $classes]);
+        $yearModel = new \App\Models\AcademicYear();
+        $years = $yearModel->all();
+
+        $view = $this->render('students/create', ['classes' => $classes, 'years' => $years]);
         echo $this->render('layouts/main', ['content' => $view, 'title' => 'Add Student']);
     }
 
     public function store()
     {
-        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher')) {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             $this->redirect('/dashboard');
         }
 
@@ -52,6 +82,21 @@ class StudentController extends Controller
             'class_id' => !empty($_POST['class_id']) ? $_POST['class_id'] : null
         ];
 
+        // Fetch Program Name if class_id is set
+        $programName = null;
+        if (!empty($data['class_id'])) {
+            $db = \App\Core\Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT c.name, d.name as dept_name FROM classes c LEFT JOIN departments d ON c.department_id = d.id WHERE c.id = ?");
+            $stmt->execute([$data['class_id']]);
+            $prog = $stmt->fetch();
+            if ($prog) {
+                $programName = htmlspecialchars($prog['name']);
+                if (!empty($prog['dept_name'])) {
+                    $programName .= " (" . htmlspecialchars($prog['dept_name']) . ")";
+                }
+            }
+        }
+
         try {
             $model = new Student();
             $model->create($data);
@@ -63,6 +108,7 @@ class StudentController extends Controller
                 <h1>Welcome, {$data['first_name']}!</h1>
                 <p>You have been successfully registered to SchoolSys.</p>
                 <p><strong>Admission Number:</strong> {$data['admission_no']}</p>
+                <p><strong>Program:</strong> " . ($programName ?? 'N/A') . "</p>
                 <p><strong>Initial Password:</strong> {$data['password']}</p>
                 <p>Please login and change your password immediately.</p>
             ";
@@ -79,7 +125,7 @@ class StudentController extends Controller
 
     public function edit()
     {
-        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher')) {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             $this->redirect('/dashboard');
         }
 
@@ -101,13 +147,16 @@ class StudentController extends Controller
         $classModel = new \App\Models\SchoolClass();
         $classes = $classModel->getAll();
 
-        $view = $this->render('students/edit', ['student' => $student, 'classes' => $classes]);
+        $yearModel = new \App\Models\AcademicYear();
+        $years = $yearModel->all();
+
+        $view = $this->render('students/edit', ['student' => $student, 'classes' => $classes, 'years' => $years]);
         echo $this->render('layouts/main', ['content' => $view, 'title' => 'Edit Student']);
     }
 
     public function update()
     {
-        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher')) {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             $this->redirect('/dashboard');
         }
 
@@ -191,6 +240,27 @@ class StudentController extends Controller
             die("Student not found");
         }
 
+        // Access Check for Teachers
+        if ($_SESSION['user']['role'] === 'teacher') {
+            $db = \App\Core\Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT id FROM teachers WHERE user_id = ?");
+            $stmt->execute([$_SESSION['user']['id']]);
+            $teacher = $stmt->fetch();
+
+            if ($teacher) {
+                $stmt = $db->prepare("SELECT COUNT(*) FROM subject_assignments WHERE teacher_id = ? AND class_id = ?");
+                $stmt->execute([$teacher['id'], $student['class_id']]);
+                $hasAccess = $stmt->fetchColumn() > 0;
+
+                if (!$hasAccess) {
+                    $_SESSION['flash_error'] = "Access denied. You are not assigned to this student's class.";
+                    $this->redirect('/students');
+                }
+            } else {
+                $this->redirect('/students');
+            }
+        }
+
         // Fetch Marks for this student
         $stmt2 = $db->prepare("
             SELECT m.*, s.name as subject_name, s.code as subject_code, e.name as exam_name 
@@ -208,7 +278,7 @@ class StudentController extends Controller
     }
     public function import()
     {
-        if ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher') {
+        if ($_SESSION['user']['role'] !== 'admin') {
             $this->redirect('/students');
         }
 
@@ -218,7 +288,7 @@ class StudentController extends Controller
 
     public function processImport()
     {
-        if ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher') {
+        if ($_SESSION['user']['role'] !== 'admin') {
             $this->redirect('/students');
         }
 
@@ -297,7 +367,7 @@ class StudentController extends Controller
 
         // Fetch Marks grouped by Exam
         $stmt2 = $db->prepare("
-             SELECT m.*, s.name as subject_name, s.code as subject_code, e.name as exam_name 
+             SELECT m.*, s.name as subject_name, s.code as subject_code, s.credits, s.total_marks as max_marks, e.name as exam_name 
              FROM marks m 
              JOIN subjects s ON m.subject_id = s.id 
              JOIN exams e ON m.exam_id = e.id 

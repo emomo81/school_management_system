@@ -73,7 +73,7 @@ class ProfileController extends Controller
 
             if (move_uploaded_file($_FILES['profile_pic']['tmp_name'], $destination)) {
                 // Determine relative path for DB
-                $data['profile_pic'] = '/uploads/profile_pics/' . $filename;
+                $data['profile_pic'] = 'uploads/profile_pics/' . $filename;
 
                 // Optional: Delete old image if exists
                 $userModel = new User();

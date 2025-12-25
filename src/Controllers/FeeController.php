@@ -14,6 +14,10 @@ class FeeController extends Controller
             $this->redirect('/login');
         }
 
+        if ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'student') {
+            $this->redirect('/dashboard');
+        }
+
         $feeModel = new Fee();
         $role = $_SESSION['user']['role'];
 

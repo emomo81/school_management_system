@@ -53,7 +53,7 @@ class NoticeController extends Controller
 
     public function delete()
     {
-        if ($_SESSION['user']['role'] !== 'admin') {
+        if ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher') {
             $this->redirect('/notices');
         }
 

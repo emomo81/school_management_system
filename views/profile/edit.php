@@ -10,7 +10,7 @@
                     <div class="text-center mb-4">
                         <div class="position-relative d-inline-block">
                             <?php if (!empty($user['profile_pic'])): ?>
-                                <img src="<?= $base_url . $user['profile_pic'] ?>" alt="Profile Picture"
+                                <img src="<?= $base_url . '/' . $user['profile_pic'] ?>" alt="Profile Picture"
                                     class="rounded-circle img-thumbnail"
                                     style="width: 150px; height: 150px; object-fit: cover;">
                             <?php else: ?>

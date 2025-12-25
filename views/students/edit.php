@@ -60,18 +60,35 @@
                         <option value="other" <?= $student['gender'] === 'other' ? 'selected' : '' ?>>Other</option>
                     </select>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label>Class (Optional)</label>
-                    <select name="class_id" class="form-select">
-                        <option value="">-- Select Class --</option>
-                        <?php if (!empty($classes)): ?>
-                            <?php foreach ($classes as $class): ?>
-                                <option value="<?= $class['id'] ?>" <?= $student['class_id'] == $class['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($class['name'] . ' - ' . $class['section']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Program (Class)</label>
+                        <select name="class_id" class="form-select">
+                            <option value="">-- Select Program --</option>
+                            <?php if (!empty($classes)): ?>
+                                <?php foreach ($classes as $class): ?>
+                                    <option value="<?= $class['id'] ?>" <?= $student['class_id'] == $class['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($class['name']) ?>
+                                        <?= !empty($class['department_name']) ? ' (' . htmlspecialchars($class['department_name']) . ')' : '' ?>
+                                        <?= !empty($class['section']) ? ' - ' . htmlspecialchars($class['section']) : '' ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Academic Year</label>
+                        <select name="academic_year_id" class="form-select" required>
+                            <option value="">-- Select Academic Year --</option>
+                            <?php if (!empty($years)): ?>
+                                <?php foreach ($years as $year): ?>
+                                    <option value="<?= $year['id'] ?>" <?= ($student['academic_year_id'] ?? '') == $year['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($year['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
                 </div>
             </div>
 

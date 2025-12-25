@@ -10,8 +10,8 @@ class TeacherController extends Controller
 
     public function index()
     {
-        if (!isset($_SESSION['user'])) {
-            $this->redirect('/login');
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+            $this->redirect('/dashboard');
         }
 
         $model = new Teacher();
@@ -58,8 +58,8 @@ class TeacherController extends Controller
 
     public function show()
     {
-        if (!isset($_SESSION['user'])) {
-            $this->redirect('/login');
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+            $this->redirect('/dashboard');
         }
 
         $id = $_GET['id'] ?? null;

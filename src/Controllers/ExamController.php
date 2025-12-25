@@ -31,7 +31,13 @@ class ExamController extends Controller
             $this->redirect('/dashboard');
         }
 
-        $view = $this->render('exams/create');
+        $deptModel = new \App\Models\Department();
+        $classModel = new \App\Models\SchoolClass();
+
+        $view = $this->render('exams/create', [
+            'departments' => $deptModel->getAll(),
+            'programs' => $classModel->getAll()
+        ]);
         echo $this->render('layouts/main', ['content' => $view, 'title' => 'Create Exam']);
     }
 
@@ -42,12 +48,50 @@ class ExamController extends Controller
         }
 
         try {
+            $departmentId = !empty($_POST['department_id']) ? $_POST['department_id'] : null;
+            $programId = !empty($_POST['program_id']) ? $_POST['program_id'] : null;
+            $term = !empty($_POST['term']) ? $_POST['term'] : '';
+            $date = $_POST['date'];
+
+            // Auto-generate Name
+            $nameParts = [];
+            if ($term)
+                $nameParts[] = $term; // "Year 1 Term 1"
+
+            // If Program is selected, fetch name
+            if ($programId) {
+                $db = Database::getInstance()->getConnection();
+                $stmt = $db->prepare("SELECT name FROM classes WHERE id = ?");
+                $stmt->execute([$programId]);
+                $prog = $stmt->fetch();
+                if ($prog)
+                    $nameParts[] = $prog['name'];
+            } elseif ($departmentId) {
+                $db = Database::getInstance()->getConnection();
+                $stmt = $db->prepare("SELECT name FROM departments WHERE id = ?");
+                $stmt->execute([$departmentId]);
+                $dept = $stmt->fetch();
+                if ($dept)
+                    $nameParts[] = $dept['name'];
+            }
+
+            $nameParts[] = "Exam"; // Suffix
+            // e.g. "Year 1 Term 1 Software Engineering Exam"
+
+            $examName = implode(' ', $nameParts);
+            if (empty(trim($examName)) || $examName === 'Exam') {
+                $examName = "Exam - " . $date;
+            }
+
             $model = new Exam();
             $model->create([
-                'name' => $_POST['name'],
-                'date' => $_POST['date']
+                'name' => $examName,
+                'date' => $date,
+                'department_id' => $departmentId,
+                'program_id' => $programId,
+                'term' => $term
             ]);
-            $_SESSION['flash_success'] = "Exam created successfully.";
+            $_SESSION['flash_success'] = "Exam created successfully: $examName";
             $this->redirect('/exams');
         } catch (\Exception $e) {
             $_SESSION['flash_error'] = "Error: " . $e->getMessage();
@@ -106,17 +150,23 @@ class ExamController extends Controller
         foreach ($existing as $m) {
             // Re-map simple key lookup if possible, or just re-query.
         }
-        // Easier: fetch map of student_id -> score
-        $stmt3 = $db->prepare("SELECT student_id, score FROM marks WHERE exam_id = ? AND subject_id = ?");
+        // Easier: fetch map of student_id -> mark row
+        $stmt3 = $db->prepare("SELECT student_id, cat1, cat2, exam_marks, score FROM marks WHERE exam_id = ? AND subject_id = ?");
         $stmt3->execute([$examId, $subjectId]);
-        $marksMap = $stmt3->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $marksMap = $stmt3->fetchAll(\PDO::FETCH_UNIQUE | \PDO::FETCH_ASSOC);
+
+        // Fetch Subject for validation
+        $subjectModel = new Subject();
+        $subject = $subjectModel->getById($subjectId);
+        $totalMarks = $subject['total_marks'] ?? 100;
 
         $view = $this->render('exams/enter_marks', [
             'exam_id' => $examId,
             'class_id' => $classId,
             'subject_id' => $subjectId,
             'students' => $students,
-            'marks' => $marksMap
+            'marks' => $marksMap,
+            'total_marks' => $totalMarks
         ]);
         echo $this->render('layouts/main', ['content' => $view, 'title' => 'Enter Marks']);
     }
@@ -125,7 +175,7 @@ class ExamController extends Controller
     {
         $examId = $_POST['exam_id'];
         $subjectId = $_POST['subject_id'];
-        $scores = $_POST['scores']; // Array of student_id => score
+        $marksData = $_POST['marks']; // Array of student_id => ['cat1'=>..., 'cat2'=>..., 'exam'=>...]
 
         $db = Database::getInstance()->getConnection();
 
@@ -135,9 +185,26 @@ class ExamController extends Controller
         $subjectModel = new Subject();
         $subject = $subjectModel->getById($subjectId);
 
-        foreach ($scores as $studentId => $score) {
-            if ($score === '')
-                continue; // Skip empty?
+        $totalMarks = $subject['total_marks'] ?? 100;
+        $ratio = $totalMarks / 100;
+        $maxCat1 = 30 * $ratio;
+        $maxCat2 = 30 * $ratio;
+        $maxExam = 40 * $ratio;
+
+        foreach ($marksData as $studentId => $components) {
+            $cat1 = (int) ($components['cat1'] ?? 0);
+            $cat2 = (int) ($components['cat2'] ?? 0);
+            $examMark = (int) ($components['exam'] ?? 0);
+
+            // Validation/Clamping
+            if ($cat1 > $maxCat1)
+                $cat1 = (int) $maxCat1;
+            if ($cat2 > $maxCat2)
+                $cat2 = (int) $maxCat2;
+            if ($examMark > $maxExam)
+                $examMark = (int) $maxExam;
+
+            $totalScore = $cat1 + $cat2 + $examMark;
 
             // Check if exists
             $stmt = $db->prepare("SELECT id FROM marks WHERE exam_id=? AND student_id=? AND subject_id=?");
@@ -145,12 +212,14 @@ class ExamController extends Controller
             $exists = $stmt->fetch();
 
             if ($exists) {
-                $upd = $db->prepare("UPDATE marks SET score=? WHERE id=?");
-                $upd->execute([$score, $exists['id']]);
+                $upd = $db->prepare("UPDATE marks SET cat1=?, cat2=?, exam_marks=?, score=? WHERE id=?");
+                $upd->execute([$cat1, $cat2, $examMark, $totalScore, $exists['id']]);
             } else {
-                $ins = $db->prepare("INSERT INTO marks (exam_id, student_id, subject_id, score) VALUES (?, ?, ?, ?)");
-                $ins->execute([$examId, $studentId, $subjectId, $score]);
+                $ins = $db->prepare("INSERT INTO marks (exam_id, student_id, subject_id, cat1, cat2, exam_marks, score) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $ins->execute([$examId, $studentId, $subjectId, $cat1, $cat2, $examMark, $totalScore]);
             }
+
+            $score = $totalScore; // For notification message
 
             // Notify Student
             $stmtStudent = $db->prepare("SELECT u.id, u.email, u.name FROM students s JOIN users u ON s.user_id = u.id WHERE s.id = ?");

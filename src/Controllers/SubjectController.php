@@ -23,23 +23,29 @@ class SubjectController extends Controller
 
     public function create()
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher')) {
             $this->redirect('/dashboard');
         }
 
-        $view = $this->render('subjects/create');
+        $deptModel = new \App\Models\Department();
+        $departments = $deptModel->getAll();
+
+        $view = $this->render('subjects/create', ['departments' => $departments]);
         echo $this->render('layouts/main', ['content' => $view, 'title' => 'Add Subject']);
     }
 
     public function store()
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher')) {
             $this->redirect('/dashboard');
         }
 
         $data = [
             'name' => $_POST['name'],
-            'code' => $_POST['code']
+            'code' => $_POST['code'],
+            'department_id' => !empty($_POST['department_id']) ? $_POST['department_id'] : null,
+            'credits' => $_POST['credits'] ?? 3,
+            'total_marks' => $_POST['total_marks'] ?? 100
         ];
 
         try {

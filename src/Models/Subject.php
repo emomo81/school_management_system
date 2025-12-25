@@ -28,10 +28,13 @@ class Subject
 
     public function create($data)
     {
-        $stmt = $this->db->prepare("INSERT INTO subjects (name, code) VALUES (:name, :code)");
+        $stmt = $this->db->prepare("INSERT INTO subjects (name, code, department_id, credits, total_marks) VALUES (:name, :code, :department_id, :credits, :total_marks)");
         return $stmt->execute([
             'name' => $data['name'],
-            'code' => $data['code']
+            'code' => $data['code'],
+            'department_id' => $data['department_id'],
+            'credits' => $data['credits'],
+            'total_marks' => $data['total_marks']
         ]);
     }
 }

@@ -116,4 +116,13 @@ $router->post('/academic-years/store', [AcademicYearController::class, 'store'])
 $router->get('/academic-years/make-active', [AcademicYearController::class, 'makeActive']);
 $router->get('/academic-years/delete', [AcademicYearController::class, 'delete']);
 
+// Departments
+use App\Controllers\DepartmentController;
+$router->get('/departments', [DepartmentController::class, 'index']);
+$router->get('/departments/create', [DepartmentController::class, 'create']);
+$router->post('/departments/store', [DepartmentController::class, 'store']);
+$router->get('/departments/edit', [DepartmentController::class, 'edit']); // Fixed missing edit route
+$router->post('/departments/update', [DepartmentController::class, 'update']);
+$router->get('/departments/delete', [DepartmentController::class, 'delete']);
+
 $router->resolve();

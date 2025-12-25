@@ -35,12 +35,7 @@
                             <i class="fas fa-chart-line"></i> Dashboard
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="<?= $base_url ?>/notices"
-                            class="<?= str_contains($_SERVER['REQUEST_URI'], 'notices') ? 'active' : '' ?>">
-                            <i class="fas fa-bullhorn"></i> Noticeboard
-                        </a>
-                    </li>
+                    <!-- Noticeboard moved to role specific block -->
 
                     <?php if ($_SESSION['user']['role'] === 'admin' || $_SESSION['user']['role'] === 'teacher'): ?>
                         <li class="nav-item">
@@ -56,15 +51,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= $base_url ?>/teachers"
-                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'teachers') ? 'active' : '' ?>">
-                                <i class="fas fa-chalkboard-teacher"></i> Teachers
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a href="<?= $base_url ?>/classes"
                                 class="<?= str_contains($_SERVER['REQUEST_URI'], 'classes') ? 'active' : '' ?>">
-                                <i class="fas fa-school"></i> Classes
+                                <i class="fas fa-graduation-cap"></i> Programs
                             </a>
                         </li>
                         <li class="nav-item">
@@ -74,15 +63,36 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= $base_url ?>/assignments"
-                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'assignments') ? 'active' : '' ?>">
-                                <i class="fas fa-tasks"></i> Assignments
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a href="<?= $base_url ?>/attendance"
                                 class="<?= str_contains($_SERVER['REQUEST_URI'], 'attendance') ? 'active' : '' ?>">
                                 <i class="fas fa-calendar-check"></i> Attendance
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= $base_url ?>/exams"
+                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'exams') ? 'active' : '' ?>">
+                                <i class="fas fa-file-invoice"></i> Exams & Marks
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= $base_url ?>/notices"
+                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'notices') ? 'active' : '' ?>">
+                                <i class="fas fa-bullhorn"></i> Noticeboard
+                            </a>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+                        <li class="nav-item">
+                            <a href="<?= $base_url ?>/teachers"
+                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'teachers') ? 'active' : '' ?>">
+                                <i class="fas fa-chalkboard-teacher"></i> Teachers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= $base_url ?>/assignments"
+                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'assignments') ? 'active' : '' ?>">
+                                <i class="fas fa-tasks"></i> Assignments
                             </a>
                         </li>
                         <li class="nav-item">
@@ -92,9 +102,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= $base_url ?>/exams"
-                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'exams') ? 'active' : '' ?>">
-                                <i class="fas fa-file-invoice"></i> Exams & Marks
+                            <a href="<?= $base_url ?>/departments"
+                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'departments') ? 'active' : '' ?>">
+                                <i class="fas fa-building"></i> Departments
                             </a>
                         </li>
                     <?php endif; ?>
@@ -127,7 +137,7 @@
                         </div>
                         <a href="<?= $base_url ?>/profile" class="text-decoration-none">
                             <?php if (!empty($_SESSION['user']['profile_pic'])): ?>
-                                <img src="<?= $base_url . $_SESSION['user']['profile_pic'] ?>" alt="Profile"
+                                <img src="<?= $base_url . '/' . $_SESSION['user']['profile_pic'] ?>" alt="Profile"
                                     class="rounded-circle border border-2 border-white shadow-sm"
                                     style="width: 40px; height: 40px; object-fit: cover;">
                             <?php else: ?>
