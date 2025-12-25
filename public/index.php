@@ -1,6 +1,11 @@
 <?php
 
+
 require_once __DIR__ . '/../autoload.php';
+
+// Load Environment Variables
+$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->safeLoad();
 
 session_start();
 
@@ -18,6 +23,12 @@ $router->post('/login', [AuthController::class, 'login']);
 $router->get('/logout', [AuthController::class, 'logout']);
 $router->get('/auth/google', [GoogleAuthController::class, 'googleRedirect']);
 $router->get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
+
+// Forgot Password
+$router->get('/forgot-password', [AuthController::class, 'forgotPassword']);
+$router->post('/forgot-password/send', [AuthController::class, 'sendResetLink']);
+$router->get('/reset-password', [AuthController::class, 'resetPasswordForm']);
+$router->post('/reset-password/update', [AuthController::class, 'updatePassword']);
 
 // Profile Routes
 use App\Controllers\ProfileController;

@@ -2,16 +2,16 @@
 
 return [
     'google' => [
-        'client_id' => '122388473050-bl8g58d3kka5heep2upr4vi0tb3k39fc.apps.googleusercontent.com', // Add your Google Client ID here
-        'client_secret' => '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', // Add your Google Client Secret here
-        'redirect_uri' => 'http://localhost:8000/auth/google/callback',
+        'client_id' => $_ENV['GOOGLE_CLIENT_ID'] ?? '',
+        'client_secret' => $_ENV['GOOGLE_CLIENT_SECRET'] ?? '',
+        'redirect_uri' => $_ENV['GOOGLE_REDIRECT_URI'] ?? '',
     ],
     'email' => [
-        'host' => 'smtp.gmail.com',
-        'port' => 587,
-        'username' => 'emomo2003@gmail.com', // Your Gmail address
-        'password' => 'xgabbjxrvzeebbef', // Your Gmail App Password
-        'from_email' => 'noreply@schoolsys.com',
-        'from_name' => 'SchoolSys Notifications'
+        'host' => $_ENV['MAIL_HOST'] ?? 'smtp.gmail.com',
+        'port' => $_ENV['MAIL_PORT'] ?? 587,
+        'username' => $_ENV['MAIL_USERNAME'] ?? '',
+        'password' => $_ENV['MAIL_PASSWORD'] ?? '',
+        'from_email' => $_ENV['MAIL_FROM_ADDRESS'] ?? 'noreply@schoolsys.com',
+        'from_name' => $_ENV['MAIL_FROM_NAME'] ?? 'SchoolSys Notifications'
     ]
 ];

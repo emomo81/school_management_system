@@ -90,7 +90,8 @@
                 <div class="d-flex justify-content-between">
                     <label
                         class="form-label text-xs font-semibold text-uppercase tracking-wider text-muted">Password</label>
-                    <a href="#" class="text-xs font-semibold text-primary text-decoration-none">Forgot?</a>
+                    <a href="<?= $base_url ?>/forgot-password"
+                        class="text-xs font-semibold text-primary text-decoration-none">Forgot?</a>
                 </div>
                 <input type="password" name="password" class="form-control" placeholder="••••••••" required>
             </div>
