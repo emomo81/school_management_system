@@ -63,6 +63,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= $base_url ?>/timetables"
+                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'timetables') ? 'active' : '' ?>">
+                                <i class="fas fa-calendar-week"></i> Timetable
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= $base_url ?>/attendance"
                                 class="<?= str_contains($_SERVER['REQUEST_URI'], 'attendance') ? 'active' : '' ?>">
                                 <i class="fas fa-calendar-check"></i> Attendance
@@ -110,6 +116,12 @@
                     <?php endif; ?>
 
                     <?php if ($_SESSION['user']['role'] === 'student'): ?>
+                        <li class="nav-item">
+                            <a href="<?= $base_url ?>/timetables"
+                                class="<?= str_contains($_SERVER['REQUEST_URI'], 'timetables') ? 'active' : '' ?>">
+                                <i class="fas fa-calendar-week"></i> My Timetable
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a href="<?= $base_url ?>/students/report"
                                 class="<?= str_contains($_SERVER['REQUEST_URI'], 'report') ? 'active' : '' ?>">

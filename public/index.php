@@ -125,4 +125,11 @@ $router->get('/departments/edit', [DepartmentController::class, 'edit']); // Fix
 $router->post('/departments/update', [DepartmentController::class, 'update']);
 $router->get('/departments/delete', [DepartmentController::class, 'delete']);
 
+// Timetables
+use App\Controllers\TimetableController;
+$router->get('/timetables', [TimetableController::class, 'index']);
+$router->get('/timetables/create', [TimetableController::class, 'create']);
+$router->post('/timetables/store', [TimetableController::class, 'store']);
+$router->get('/timetables/delete', [TimetableController::class, 'delete']);
+
 $router->resolve();
