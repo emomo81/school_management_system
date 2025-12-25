@@ -16,7 +16,7 @@ class SchoolClass
 
     public function getAll()
     {
-        $stmt = $this->db->query("SELECT * FROM classes ORDER BY name ASC");
+        $stmt = $this->db->query("SELECT * FROM classes WHERE deleted_at IS NULL ORDER BY name ASC");
         return $stmt->fetchAll();
     }
 
@@ -27,5 +27,10 @@ class SchoolClass
             'name' => $data['name'],
             'section' => $data['section']
         ]);
+    }
+
+    public function count()
+    {
+        return $this->db->query("SELECT COUNT(*) FROM classes")->fetchColumn();
     }
 }

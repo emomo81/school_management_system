@@ -8,7 +8,7 @@
 <div class="card shadow-sm">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover table-datatable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -29,7 +29,8 @@
                                 <td><?= htmlspecialchars($class['name']) ?></td>
                                 <td><?= htmlspecialchars($class['section']) ?></td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-info text-white">View Students</a>
+                                    <a href="<?= $base_url ?>/classes/show?id=<?= $class['id'] ?>"
+                                        class="btn btn-sm btn-info text-white">View Students</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

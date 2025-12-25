@@ -8,7 +8,7 @@
 <div class="card shadow-sm">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover table-datatable">
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -31,7 +31,8 @@
                                 <td><?= htmlspecialchars($teacher['phone']) ?></td>
                                 <td><?= htmlspecialchars($teacher['qualification']) ?></td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-info text-white">View</a>
+                                    <a href="<?= $base_url ?>/teachers/show?id=<?= $teacher['id'] ?>"
+                                        class="btn btn-sm btn-info text-white">View</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

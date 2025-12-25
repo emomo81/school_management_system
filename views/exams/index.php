@@ -7,7 +7,7 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <table class="table table-hover">
+        <table class="table table-hover table-datatable">
             <thead>
                 <tr>
                     <th>Exam Name</th>

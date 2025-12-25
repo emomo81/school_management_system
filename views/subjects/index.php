@@ -7,7 +7,7 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <table class="table table-hover">
+        <table class="table table-hover table-datatable">
             <thead>
                 <tr>
                     <th>Code</th>
@@ -26,7 +26,8 @@
                             <td><?= htmlspecialchars($subject['code']) ?></td>
                             <td><?= htmlspecialchars($subject['name']) ?></td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-info text-white">View</a>
+                                <a href="<?= $base_url ?>/subjects/show?id=<?= $subject['id'] ?>"
+                                    class="btn btn-sm btn-info text-white">View</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

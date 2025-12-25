@@ -52,4 +52,35 @@ class ClassController extends Controller
             $this->redirect('/classes/create');
         }
     }
+
+    public function show()
+    {
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('/login');
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            $this->redirect('/classes');
+        }
+
+        $db = \App\Core\Database::getInstance()->getConnection();
+
+        // Fetch Class
+        $stmt = $db->prepare("SELECT * FROM classes WHERE id = ?");
+        $stmt->execute([$id]);
+        $class = $stmt->fetch();
+
+        if (!$class) {
+            die("Class not found");
+        }
+
+        // Fetch Students in this class
+        $stmt2 = $db->prepare("SELECT s.*, u.name, u.email FROM students s JOIN users u ON s.user_id = u.id WHERE s.class_id = ? ORDER BY u.name ASC");
+        $stmt2->execute([$id]);
+        $students = $stmt2->fetchAll();
+
+        $view = $this->render('classes/show', ['class' => $class, 'students' => $students]);
+        echo $this->render('layouts/main', ['content' => $view, 'title' => 'Class Details']);
+    }
 }

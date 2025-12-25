@@ -1,14 +1,21 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Students</h2>
     <?php if ($_SESSION['user']['role'] === 'admin'): ?>
-        <a href="<?= $base_url ?>/students/create" class="btn btn-primary">Add New Student</a>
+        <div>
+            <a href="<?= $base_url ?>/students/import" class="btn btn-outline-primary me-2">
+                <i class="fas fa-file-import me-2"></i> Import CSV
+            </a>
+            <a href="<?= $base_url ?>/students/create" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i> Add Student
+            </a>
+        </div>
     <?php endif; ?>
 </div>
 
 <div class="card shadow-sm">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover table-datatable">
                 <thead>
                     <tr>
                         <th>Admission No</th>
@@ -36,7 +43,11 @@
                                     <a href="<?= $base_url ?>/students/report?id=<?= $student['id'] ?>"
                                         class="btn btn-sm btn-secondary">Report Card</a>
                                     <?php if ($_SESSION['user']['role'] === 'admin'): ?>
-                                        <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="<?= $base_url ?>/students/edit?id=<?= $student['id'] ?>"
+                                            class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="<?= $base_url ?>/students/delete?id=<?= $student['id'] ?>"
+                                            class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Delete this student?')">Delete</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>

@@ -35,3 +35,68 @@
         </div>
     </div>
 </div>
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Academic Performance (Marks)</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-datatable">
+                <thead>
+                    <tr>
+                        <th>Exam</th>
+                        <th>Subject</th>
+                        <th>Score</th>
+                        <th>Grade</th>
+                        <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+                            <th>Actions</th>
+                        <?php endif; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($marks)): ?>
+                        <tr>
+                            <td colspan="<?= $_SESSION['user']['role'] === 'admin' ? 5 : 4 ?>" class="text-center">No marks
+                                recorded.</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($marks as $mark):
+                            $score = $mark['score'];
+                            $grade = 'F';
+                            if ($score >= 90)
+                                $grade = 'A+';
+                            elseif ($score >= 80)
+                                $grade = 'A';
+                            elseif ($score >= 70)
+                                $grade = 'B';
+                            elseif ($score >= 60)
+                                $grade = 'C';
+                            elseif ($score >= 50)
+                                $grade = 'D';
+                            ?>
+                            <tr>
+                                <td><?= htmlspecialchars($mark['exam_name']) ?></td>
+                                <td><?= htmlspecialchars($mark['subject_name']) ?>
+                                    (<?= htmlspecialchars($mark['subject_code']) ?>)</td>
+                                <td><?= $score ?> / 100</td>
+                                <td><span class="badge bg-<?= $grade === 'F' ? 'danger' : 'success' ?>"><?= $grade ?></span>
+                                </td>
+                                <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+                                    <td>
+                                        <form action="<?= $base_url ?>/exams/enter-marks" method="POST" style="display:inline;">
+                                            <input type="hidden" name="exam_id" value="<?= $mark['exam_id'] ?>">
+                                            <input type="hidden" name="class_id" value="<?= $student['class_id'] ?>">
+                                            <input type="hidden" name="subject_id" value="<?= $mark['subject_id'] ?>">
+                                            <button type="submit" class="btn btn-sm btn-warning">Edit</button>
+                                        </form>
+                                    </td>
+                                <?php endif; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

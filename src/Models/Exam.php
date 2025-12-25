@@ -13,9 +13,16 @@ class Exam
         $this->db = Database::getInstance()->getConnection();
     }
 
+    public function getById($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM exams WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+
     public function getAll()
     {
-        $stmt = $this->db->query("SELECT * FROM exams ORDER BY date DESC");
+        $stmt = $this->db->query("SELECT * FROM exams WHERE deleted_at IS NULL ORDER BY date DESC");
         return $stmt->fetchAll();
     }
 
@@ -26,5 +33,10 @@ class Exam
             'name' => $data['name'],
             'date' => $data['date']
         ]);
+    }
+
+    public function count()
+    {
+        return $this->db->query("SELECT COUNT(*) FROM exams")->fetchColumn();
     }
 }

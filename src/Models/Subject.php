@@ -13,9 +13,16 @@ class Subject
         $this->db = Database::getInstance()->getConnection();
     }
 
+    public function getById($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM subjects WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+
     public function getAll()
     {
-        $stmt = $this->db->query("SELECT * FROM subjects ORDER BY name ASC");
+        $stmt = $this->db->query("SELECT * FROM subjects WHERE deleted_at IS NULL ORDER BY name ASC");
         return $stmt->fetchAll();
     }
 

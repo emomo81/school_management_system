@@ -55,4 +55,28 @@ class TeacherController extends Controller
             $this->redirect('/teachers/create');
         }
     }
+
+    public function show()
+    {
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('/login');
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            $this->redirect('/teachers');
+        }
+
+        $db = \App\Core\Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT t.*, u.name, u.email FROM teachers t JOIN users u ON t.user_id = u.id WHERE t.id = ?");
+        $stmt->execute([$id]);
+        $teacher = $stmt->fetch();
+
+        if (!$teacher) {
+            die("Teacher not found");
+        }
+
+        $view = $this->render('teachers/show', ['teacher' => $teacher]);
+        echo $this->render('layouts/main', ['content' => $view, 'title' => 'Teacher Details']);
+    }
 }

@@ -20,6 +20,7 @@ class Teacher
             SELECT t.*, u.name, u.email 
             FROM teachers t
             JOIN users u ON t.user_id = u.id
+            WHERE t.deleted_at IS NULL
             ORDER BY u.name ASC
         ");
         return $stmt->fetchAll();
@@ -52,5 +53,10 @@ class Teacher
             $this->db->rollBack();
             throw $e;
         }
+    }
+
+    public function count()
+    {
+        return $this->db->query("SELECT COUNT(*) FROM teachers")->fetchColumn();
     }
 }

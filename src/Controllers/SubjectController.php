@@ -52,4 +52,28 @@ class SubjectController extends Controller
             $this->redirect('/subjects/create');
         }
     }
+
+    public function show()
+    {
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('/login');
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            $this->redirect('/subjects');
+        }
+
+        $db = \App\Core\Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT * FROM subjects WHERE id = ?");
+        $stmt->execute([$id]);
+        $subject = $stmt->fetch();
+
+        if (!$subject) {
+            die("Subject not found");
+        }
+
+        $view = $this->render('subjects/show', ['subject' => $subject]);
+        echo $this->render('layouts/main', ['content' => $view, 'title' => 'Subject Details']);
+    }
 }

@@ -27,7 +27,7 @@ class ExamController extends Controller
 
     public function create()
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher')) {
             $this->redirect('/dashboard');
         }
 
@@ -37,7 +37,7 @@ class ExamController extends Controller
 
     public function store()
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher')) {
             $this->redirect('/dashboard');
         }
 
@@ -58,7 +58,7 @@ class ExamController extends Controller
     // Marks Input
     public function marks()
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'teacher')) {
             $this->redirect('/dashboard');
         }
 
@@ -129,6 +129,12 @@ class ExamController extends Controller
 
         $db = Database::getInstance()->getConnection();
 
+        $notificationModel = new \App\Models\Notification();
+        $examModel = new Exam();
+        $exam = $examModel->getById($examId);
+        $subjectModel = new Subject();
+        $subject = $subjectModel->getById($subjectId);
+
         foreach ($scores as $studentId => $score) {
             if ($score === '')
                 continue; // Skip empty?
@@ -144,6 +150,33 @@ class ExamController extends Controller
             } else {
                 $ins = $db->prepare("INSERT INTO marks (exam_id, student_id, subject_id, score) VALUES (?, ?, ?, ?)");
                 $ins->execute([$examId, $studentId, $subjectId, $score]);
+            }
+
+            // Notify Student
+            $stmtStudent = $db->prepare("SELECT u.id, u.email, u.name FROM students s JOIN users u ON s.user_id = u.id WHERE s.id = ?");
+            $stmtStudent->execute([$studentId]);
+            $studentUser = $stmtStudent->fetch();
+
+            if ($studentUser) {
+                // 1. Create Internal Notification
+                $notificationModel->create(
+                    $studentUser['id'],
+                    'exam',
+                    "New Marks: " . ($subject['name'] ?? 'Subject'),
+                    "Your marks for " . ($exam['name'] ?? 'Exam') . " in " . ($subject['name'] ?? 'Subject') . " have been updated to $score."
+                );
+
+                // 2. Send Real Email Notification
+                $emailService = \App\Services\EmailService::getInstance();
+                $subjectText = "New Marks Published: " . ($subject['name'] ?? 'Subject');
+                $messageBody = "
+                    <h2>Marks Update</h2>
+                    <p>Dear {$studentUser['name']},</p>
+                    <p>Your marks for <strong>" . ($exam['name'] ?? 'Exam') . "</strong> in <strong>" . ($subject['name'] ?? 'Subject') . "</strong> have been updated.</p>
+                    <p style='font-size: 1.2rem;'><strong>Score: $score</strong></p>
+                    <p>Please log in to your dashboard to view your full report card.</p>
+                ";
+                $emailService->send($studentUser['email'], $subjectText, $messageBody);
             }
         }
 
