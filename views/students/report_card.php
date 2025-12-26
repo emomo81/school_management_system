@@ -6,8 +6,9 @@
                     <div>
                         <h3 class="mb-0">Report Card</h3>
                         <p class="text-muted">
-                            <?= htmlspecialchars($student['first_name'] . ' ' . $student['last_name']) ?>
-                            (<?= htmlspecialchars($student['admission_no']) ?>)</p>
+                            <?= htmlspecialchars($student['name']) ?>
+                            (<?= htmlspecialchars($student['admission_no']) ?>)
+                        </p>
                     </div>
                     <div class="text-end">
                         <h4 class="mb-0"><?= htmlspecialchars($student['class_name'] ?? 'N/A') ?></h4>
