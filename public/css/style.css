@@ -93,6 +93,7 @@ body {
         width: 280px;
         height: 100vh;
         z-index: 1050;
+        overflow-y: auto;
     }
 
     .sidebar.show {
