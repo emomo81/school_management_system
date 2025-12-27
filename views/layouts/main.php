@@ -18,10 +18,15 @@
 <body>
     <div class="d-flex">
         <?php if (isset($_SESSION['user'])): ?>
-            <nav class="sidebar col-md-2 d-none d-md-block">
+            <nav class="sidebar col-md-2" id="sidebar">
                 <div class="brand">
-                    <i class="fas fa-graduation-cap text-primary"></i>
-                    <span>SCHOOLSYS</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-graduation-cap text-primary"></i>
+                        <span>SCHOOLSYS</span>
+                    </div>
+                    <button class="btn btn-link text-white d-md-none" id="sidebarClose">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
 
                 <div class="px-4 mb-4">
@@ -140,8 +145,14 @@
         <?php endif; ?>
 
         <div class="main-wrapper">
+            <div class="sidebar-overlay" id="sidebarOverlay"></div>
             <?php if (isset($_SESSION['user'])): ?>
                 <header class="top-bar">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-link text-dark d-md-none me-3" id="sidebarToggle">
+                            <i class="fas fa-bars fa-lg"></i>
+                        </button>
+                    </div>
                     <div class="d-flex align-items-center gap-3">
                         <div class="text-end">
                             <div class="font-semibold text-sm"><?= $_SESSION['user']['name'] ?></div>
@@ -195,6 +206,12 @@
                     "searchPlaceholder": "Search anything..."
                 },
                 "dom": '<"d-flex justify-content-between align-items-center mb-3"<"d-flex align-items-center"l><"d-flex align-items-center"f>>t<"d-flex justify-content-between align-items-center mt-3"ip>'
+            });
+
+            // Mobile Sidebar Toggles
+            $('#sidebarToggle, #sidebarOverlay, #sidebarClose').on('click', function () {
+                $('#sidebar').toggleClass('show');
+                $('#sidebarOverlay').toggleClass('show');
             });
         });
     </script>
