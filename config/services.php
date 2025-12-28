@@ -5,15 +5,14 @@ return [
         'client_id' => $_ENV['GOOGLE_CLIENT_ID'] ?? '',
         'client_secret' => $_ENV['GOOGLE_CLIENT_SECRET'] ?? '',
         'redirect_uri' => (function () {
-            if (!empty($_ENV['GOOGLE_REDIRECT_URI']) && !str_contains($_ENV['GOOGLE_REDIRECT_URI'], 'localhost')) {
-                return $_ENV['GOOGLE_REDIRECT_URI'];
+            // Localhost (Development)
+            if (str_contains($_SERVER['HTTP_HOST'] ?? '', 'localhost') || str_contains($_SERVER['HTTP_HOST'] ?? '', '127.0.0.1')) {
+                return 'http://localhost:8000/auth/google/callback';
             }
-            // Dynamic generation
-            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $path = str_contains($host, 'localhost') ? '' : ''; // Add subpath if needed, e.g. '/public' if not handled by htaccess
-            // Since we added .htaccess, we don't need /public in the URL for production if root points there
-            return $protocol . $host . $path . '/auth/google/callback';
+
+            // Production (Hardcoded to match your exact domain)
+            // Note: If you enable SSL (HTTPS), change 'http' to 'https' below.
+            return 'http://schoolproto.xo.je/auth/google/callback';
         })(),
     ],
     'email' => [
