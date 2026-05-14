@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Select-String \".env\")",
+      "Bash(cd \"C:\\\\Users\\\\emomo\\\\OneDOne\\\\Desktop\\\\Real Project 2\\\\school_management_system\" && find . -name \"*.php\" -type f 2>/dev/null | head -20)"
+    ]
+  }
+}
