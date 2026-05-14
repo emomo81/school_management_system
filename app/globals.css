@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f6f3ec;
+  --foreground: #20231f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background:
+    linear-gradient(90deg, rgba(44, 82, 65, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(44, 82, 65, 0.05) 1px, transparent 1px),
+    var(--background);
+  background-size: 28px 28px;
+  color: var(--foreground);
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px rgba(54, 124, 89, 0.28);
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
+
+  .print-card {
+    border: 1px solid #222 !important;
+    box-shadow: none !important;
+  }
+
+  .print-avoid-break {
+    break-inside: avoid;
+  }
+}
