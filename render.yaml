@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: school-management-system
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
