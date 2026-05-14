@@ -1,5 +1,12 @@
 /vendor
 /.env
+/.env.local
 /logs
 /uploads
 .DS_Store
+node_modules
+.next
+out
+next-env.d.ts
+npm-debug.log*
+next-dev.log
