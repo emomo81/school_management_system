@@ -9,6 +9,7 @@
     "require": {
         "php": ">=8.0",
         "vlucas/phpdotenv": "^5.5",
-        "phpmailer/phpmailer": "^7.0"
+        "phpmailer/phpmailer": "^7.0",
+        "mongodb/mongodb": "^1.17"
     }
 }
